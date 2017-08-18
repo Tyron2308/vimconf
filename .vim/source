@@ -1,0 +1,11 @@
+:imap ;; <Esc>
+set number
+set smartindent
+set autoindent
+set ruler
+set mouse=a
+syntax on
+colorscheme Tomorrow-Night
+set t_Co=256
+inoremap(()<left>
+set cursorline 

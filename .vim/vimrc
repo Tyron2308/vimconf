@@ -1,0 +1,6 @@
+set nocompatible
+runtime! config/**/*.vim
+call pathogen#infect()
+call pathogen#helptags()
+set DoMatchParen
+set showmatch
