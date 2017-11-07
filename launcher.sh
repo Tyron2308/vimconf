@@ -1,7 +1,3 @@
-echo 'provide user name'
-
-if [ "$#" -eq 1 ]; then 
-	$USER=$1
 
 	git clone https://github.com/tpope/vim-pathogen
 	cp vim-pathogen/autoload/pathogen.vim .vim/autoload/
@@ -14,9 +10,7 @@ if [ "$#" -eq 1 ]; then
 	git clone https://github.com/easymotion/vim-easymotion.git .vim/bundle/vim-easymotion
 	git clone https://github.com/python-mode/python-mode.git .vim/bundle/vim-python
 
-	cp -r vimconf/.vim /home/tyron/
+	cp -r vimconf/.vim /home/$USER/
 	cp /home/$USER/vimconf/.vimrc /home/$USER/.vimrc
 
 	rm -rf vim-pathogen
-else
-	echo "provide user name "	
