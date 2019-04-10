@@ -1,0 +1,163 @@
+# -- display -------------------------------------------------------------------
+
+bind -n C-P paste-buffer 
+bind-key -T vi-copy 'v' send-keys -X begin-selection
+bind-key -T vi-copy 'y' send-keys -x copy-selection
+bind-key -T vi-copy 'r' send-keys -X rectangle-toggle
+
+#set -g base-index 1           # start windows numbering at 1
+bind -n C-l send-keys -R \; clear-history
+#setw -g pane-base-index 1     # make pane numbering consistent with windows
+
+set     -g mouse on
+setw    -g automatic-rename on   # rename window to reflect current program
+set     -g renumber-windows on    # renumber windows when a window is closed
+
+set     -g set-titles on          # set terminal title
+
+set     -g display-panes-time 800 # slightly longer pane indicators display time
+set     -g display-time 1000      # slightly longer status messages display time
+
+set     -g status-interval 10     # redraw status line every 10 seconds
+
+set -g pane-border-bg colour235
+set -g pane-border-fg colour242
+set -g pane-active-border-bg colour235
+set -g pane-active-border-fg colour242
+set-window-option -g window-status-fg colour136#white #brightblue #base0
+set-window-option -g window-status-bg default #colour236
+#set-window-option -g window-status-attr bright 
+
+set-window-option -g window-status-current-fg colour136#brightred #orange
+set-window-option -g window-status-current-bg white #colour236
+set-window-option -g window-status-current-attr bold #bright
+
+set -g status-bg colour236#colour66#colour236
+set -g status-fg white  
+#set -g status-right '#(/usr/local/bin/power_bash.sh) #[fg=colour250]| #[fg=colour250] %d/%m - %H:%M:%S '  
+
+set -g status-justify centre  
+set -g status-left-length 70
+set -g status-left "#[fg=colour253]: #(ifconfig en0 | grep 'inet ' | awk '{print \"en0 \" $2 }')"
+#set -g status-right "$(~/bin/battery Discharging; ~/bin/battery Charging) | %e %B %R"
+# -- navigation ----------------------------------------------------------------
+# create session
+bind C-c new-session
+
+# find session
+bind C-f command-prompt -p find-session 'switch-client -t %%'
+
+# pane resizing
+bind -r H resize-pane -L 2
+bind -r J resize-pane -D 2
+bind -r K resize-pane -U 2
+bind -r L resize-pane -R 2
+
+# window navigation
+
+bind -n M-0 if-shell 'tmux select-window -t :0' '' 'new-window -t :0'
+bind -n M-1 if-shell 'tmux select-window -t :1' '' 'new-window -t :1'
+bind -n M-2 if-shell 'tmux select-window -t :2' '' 'new-window -t :2'
+bind -n M-3 if-shell 'tmux select-window -t :3' '' 'new-window -t :3'
+bind -n M-4 if-shell 'tmux select-window -t :4' '' 'new-window -t :4'
+bind -n M-5 if-shell 'tmux select-window -t :5' '' 'new-window -t :5'
+
+unbind C-c 
+
+bind -n M-l clear-history
+# ==== gestions panes ====
+bind -n M-Left select-pane -L
+bind -n M-Right select-pane -R
+bind -n M-Up select-pane -U
+bind -n M-Down select-pane -D
+
+# pane navigation
+bind -n M-> swap-pane -D       # swap current pane with the next one
+bind -n M-< swap-pane -U       # swap current pane with the previous one
+
+# === new panes split =====
+#bind-key v split-window -h
+bind -n C-s split-window -h -c "#{pane_current_path}"
+bind -n C-r split-window -v
+#bind-key -n M-\ split-window -h
+unbind '"'
+unbind %
+
+# maximize current pane
+#bind + run 'cut -c3- ~/.tmux.conf | sh -s _maximize_pane "#{session_name}" #D'
+
+# toggle mouse
+bind m run "cut -c3- ~/.tmux.conf | sh -s _toggle_mouse"
+
+
+# reload configuration
+bind r source-file ~/.tmux.conf \; display '~/.tmux.conf sourced'
+
+# ===================== vim conf 
+is_vim="ps -o state= -o comm= -t '#{pane_tty}' \
+            | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|n?vim?x?)(diff)?$'"
+            bind-key -n C-h if-shell "$is_vim" "send-keys C-h"  "select-pane -L"
+            bind-key -n C-j if-shell "$is_vim" "send-keys C-j"  "select-pane -D"
+            bind-key -n C-k if-shell "$is_vim" "send-keys C-k"  "select-pane -U"
+            bind-key -n C-l if-shell "$is_vim" "send-keys C-l"  "select-pane -R"
+            bind-key -n C-\ if-shell "$is_vim" "send-keys C-\\" "select-pane -l"
+            bind-key -T copy-mode-vi C-h select-pane -L
+            bind-key -T copy-mode-vi C-j select-pane -D
+            bind-key -T copy-mode-vi C-k select-pane -U
+            bind-key -T copy-mode-vi C-l select-pane -R
+            bind-key -T copy-mode-vi C-\ select-pane -l
+
+# -- buffers -------------------------------------------------------------------
+
+bind b list-buffers  # list paste buffers
+bind p paste-buffer  # paste from the top paste buffer
+bind P choose-buffer # choose which buffer to paste from
+
+# -- general status line -----
+
+# activity
+set -g monitor-activity on
+set -g visual-activity off
+set -g default-terminal "screen-256color" # colors!
+setw -g xterm-keys on
+set -s escape-time 10                     # faster command sequences
+set -sg repeat-time 600                   # increase repeat timeout
+set -s focus-events on
+
+#set -g prefix2 C-a                        # GNU-Screen compatible prefix
+#bind C-a send-prefix -2
+
+#set -q -g status-utf8 on                  # expect UTF-8 (tmux < 2.2)
+#setw -q -g utf8 on
+
+set -g history-limit 5000                 # boost history
+
+
+# -- copy mode -----------------------------------------------------------------
+
+# handle copy paste like vim 
+setw -g mode-keys vi
+
+run -b 'tmux bind -t vi-copy v begin-selection 2> /dev/null || true'
+run -b 'tmux bind -T copy-mode-vi v send -X begin-selection 2> /dev/null || true'
+run -b 'tmux bind -t vi-copy C-v rectangle-toggle 2> /dev/null || true'
+run -b 'tmux bind -T copy-mode-vi C-v send -X rectangle-toggle 2> /dev/null || true'
+run -b 'tmux bind -t vi-copy y copy-selection 2> /dev/null || true'
+run -b 'tmux bind -T copy-mode-vi y send -X copy-selection-and-cancel 2> /dev/null || true'
+run -b 'tmux bind -t vi-copy Escape cancel 2> /dev/null || true'
+run -b 'tmux bind -T copy-mode-vi Escape send -X cancel 2> /dev/null || true'
+run -b 'tmux bind -t vi-copy H start-of-line 2> /dev/null || true'
+run -b 'tmux bind -T copy-mode-vi H send -X start-of-line 2> /dev/null || true'
+run -b 'tmux bind -t vi-copy L end-of-line 2> /dev/null || true'
+run -b 'tmux bind -T copy-mode-vi L send -X end-of-line 2> /dev/null || true'
+
+# copy to Mac OSX clipboard
+if -b 'command -v reattach-to-user-namespace > /dev/null 2>&1' 'bind y run -b "tmux save-buffer - | reattach-to-user-namespace pbcopy"'
+# copy to X11 clipboard
+if -b 'command -v xsel > /dev/null 2>&1' 'bind y run -b "tmux save-buffer - | xsel -i -b"'
+if -b '! command -v xsel > /dev/null 2>&1 && command -v xclip > /dev/null 2>&1' 'bind y run -b "tmux save-buffer - | xclip -i -selection clipboard >/dev/null 2>&1"'
+#copy to Windows clipboard
+if -b 'command -v clip.exe > /dev/null 2>&1' 'bind y run -b "tmux save-buffer - | clip.exe"'
+if -b '[ -c /dev/clipboard ]' 'bind y run -b "tmux save-buffer - > /dev/clipboard"'
+
+unbind-key -T copy-mode-vi v
